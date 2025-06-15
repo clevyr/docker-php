@@ -86,7 +86,7 @@ RUN <<EOT
   fi
 EOT
 
-COPY --from=ghcr.io/roadrunner-server/roadrunner:2024.3.1 /usr/bin/rr /usr/local/bin/rr
+COPY --from=ghcr.io/roadrunner-server/roadrunner:2025.1.2 /usr/bin/rr /usr/local/bin/rr
 COPY rootfs/ /
 
 CMD ["s6-svscan", "/etc/services.d"]
