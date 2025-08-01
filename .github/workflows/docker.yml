@@ -2,8 +2,9 @@ name: Docker Build
 
 on: push
 
-env:
-  TEST_TAG: ${{ github.repository }}:test
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -17,6 +18,8 @@ jobs:
         include:
           - php_version: "8.4"
             latest: "true"
+    env:
+      TEST_TAG: ${{ github.repository }}:test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
