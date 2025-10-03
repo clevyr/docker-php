@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -euo pipefail
+
+# Wrapper to run s6-svscan from a writable directory
+# s6-svscan creates .s6-svscan in the service directory, so we need to copy services to /tmp
+
+# See https://skarnet.org/software/s6/scandir.html
+
+SERVICE_DIR="$1"
+
+if [ -z "$SERVICE_DIR" ]; then
+    echo "Usage: $0 <service-directory>" >&2
+    exit 1
+fi
+
+# Create a unique directory in /tmp for our services
+TEMP_SERVICE_DIR="/tmp/s6-services-$$"
+mkdir -p "$TEMP_SERVICE_DIR"
+
+# Copy the service directory contents to /tmp
+cp -r "$SERVICE_DIR"/* "$TEMP_SERVICE_DIR/" 2>/dev/null || cp -r "$SERVICE_DIR"/. "$TEMP_SERVICE_DIR/"
+
+# Run s6-svscan against the copied services
+exec s6-svscan "$TEMP_SERVICE_DIR"

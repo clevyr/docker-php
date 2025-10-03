@@ -1,6 +1,6 @@
 server {
-    listen 80;
-    listen [::]:80 default ipv6only=on;
+    listen $NGINX_PORT;
+    listen [::]:$NGINX_PORT default ipv6only=on;
 
     server_name _;
 
