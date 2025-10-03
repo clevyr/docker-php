@@ -40,6 +40,22 @@ jobs:
             # {{major}}-base
             type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-base,value=${{ matrix.php_version }}.0
 
+      - name: Docker meta (base-rootless)
+        id: meta-base-rootless
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+        with:
+          images: |
+            clevyr/php
+            ghcr.io/clevyr/php
+          flavor: latest=false
+          tags: |
+            # {{major}}.{{minor}}-composer{{major}}-base-rootless
+            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-base,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-base-rootless
+            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},suffix=-base-rootless,value=${{ matrix.php_version }}.0
+            # {{major}}-base-rootless
+            type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-base-rootless,value=${{ matrix.php_version }}.0
+
       - name: Docker meta (onbuild)
         id: meta-onbuild
         uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
@@ -63,6 +79,30 @@ jobs:
             type=semver,enable=${{ (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-composer${{ matrix.composer_version }},value=${{ matrix.php_version }}.0
             # {{major}}-onbuild
             type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-onbuild,value=${{ matrix.php_version }}.0
+            # {{major}}
+            type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},value=${{ matrix.php_version }}.0
+
+      - name: Docker meta (onbuild-rootless)
+        id: meta-onbuild-rootless
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+        with:
+          images: |
+            clevyr/php
+            ghcr.io/clevyr/php
+          flavor: latest=false
+          tags: |
+            # {{major}}.{{minor}}-composer{{major}}-onbuild-rootless
+            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-onbuild-rootless,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-composer{{major}}
+            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }},value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-onbuild-rootless
+            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},suffix=-onbuild-rootless,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}
+            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},value=${{ matrix.php_version }}.0
+            # {{major}}-composer{{major}}
+            type=semver,enable=${{ (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-composer${{ matrix.composer_version }},value=${{ matrix.php_version }}.0
+            # {{major}}-onbuild-rootless
+            type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-onbuild-rootless,value=${{ matrix.php_version }}.0
             # {{major}}
             type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},value=${{ matrix.php_version }}.0
 
@@ -121,6 +161,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and Push (base-rootless)
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          context: .
+          pull: true
+          push: ${{ github.ref_name == 'main' }}
+          platforms: ${{ matrix.platforms }}
+          tags: ${{ steps.meta-base-rootless.outputs.tags }}
+          labels: ${{ steps.meta-base-rootless.outputs.labels }}
+          build-args: |
+            COMPOSER_VERSION=${{ matrix.composer_version }}
+            PHP_VERSION=${{ matrix.php_version }}
+          target: base-rootless
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Build and Push (onbuild)
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
@@ -133,5 +189,20 @@ jobs:
             COMPOSER_VERSION=${{ matrix.composer_version }}
             PHP_VERSION=${{ matrix.php_version }}
           target: onbuild
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and Push (onbuild-rootless)
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          context: .
+          push: ${{ github.ref_name == 'main' }}
+          platforms: ${{ matrix.platforms }}
+          tags: ${{ steps.meta-onbuild-rootless.outputs.tags }}
+          labels: ${{ steps.meta-onbuild-rootless.outputs.labels }}
+          build-args: |
+            COMPOSER_VERSION=${{ matrix.composer_version }}
+            PHP_VERSION=${{ matrix.php_version }}
+          target: onbuild-rootless
           cache-from: type=gha
           cache-to: type=gha,mode=max
