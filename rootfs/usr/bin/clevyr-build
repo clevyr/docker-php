@@ -64,8 +64,9 @@ install-php-extensions "${INSTALL[@]}"
 # Template nginx config
 log 'Templating nginx config'
 export NGINX_ROOT="${NGINX_ROOT:-/app/public}" \
-    NGINX_EXPIRES="${NGINX_EXPIRES:-7d}"
-envsubst '$NGINX_ROOT $NGINX_EXPIRES' < /etc/nginx/conf.d/default.conf.tpl > /etc/nginx/conf.d/default.conf
+    NGINX_EXPIRES="${NGINX_EXPIRES:-7d}" \
+    NGINX_PORT="${NGINX_PORT:-80}"
+envsubst '$NGINX_ROOT $NGINX_EXPIRES $NGINX_PORT' < /etc/nginx/conf.d/default.conf.tpl > /etc/nginx/conf.d/default.conf
 
 log 'Removing all tmp files'
 rm -rf /tmp/*
