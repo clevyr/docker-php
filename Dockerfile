@@ -9,7 +9,7 @@ FROM composer:$COMPOSER_VERSION AS local-composer
 FROM php:$PHP_VERSION-fpm-alpine$ALPINE_VERSION AS base
 WORKDIR /app
 
-COPY --from=mlocati/php-extension-installer:2.10.6 /usr/bin/install-php-extensions /usr/bin/
+COPY --from=mlocati/php-extension-installer:2.10.8 /usr/bin/install-php-extensions /usr/bin/
 
 RUN <<EOT
   set -eux
