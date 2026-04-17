@@ -12,7 +12,7 @@ COPY --from=mlocati/php-extension-installer:2.10.6 /usr/bin/install-php-extensio
 
 RUN <<EOT
   set -eux
-  apk add --no-cache bash git jq postgresql-client s6
+  apk add --no-cache bash git jq postgresql-client
   install-php-extensions bcmath calendar exif intl pcntl opcache pgsql pdo_pgsql redis sockets zip
   cd "$PHP_INI_DIR"
   sed -ri \
@@ -61,8 +61,6 @@ COPY rootfs.rr/ /
 
 USER nobody:nogroup
 WORKDIR /app
-
-CMD ["s6-svscan-rootless", "/etc/services.d"]
 
 FROM base AS onbuild
 
