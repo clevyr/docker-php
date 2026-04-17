@@ -13,7 +13,7 @@ COPY --from=mlocati/php-extension-installer:2.10.6 /usr/bin/install-php-extensio
 RUN <<EOT
   set -eux
   apk add --no-cache bash git jq postgresql-client s6
-  install-php-extensions bcmath calendar exif intl pcntl opcache pgsql pdo_pgsql redis zip
+  install-php-extensions bcmath calendar exif intl pcntl opcache pgsql pdo_pgsql redis sockets zip
   cd "$PHP_INI_DIR"
   sed -ri \
       -e 's/^;?(max_execution_time).*/\1 = ${PHP_MAX_EXECUTION_TIME}/' \
@@ -87,7 +87,6 @@ ONBUILD ARG INSTALL_GD
 ONBUILD ARG INSTALL_IMAGICK
 ONBUILD ARG INSTALL_MOSQUITTO
 ONBUILD ARG INSTALL_MYSQL
-ONBUILD ARG INSTALL_SOCKETS=true
 ONBUILD ARG INSTALL_SQLSRV
 ONBUILD ARG INSTALL_XDEBUG
 
