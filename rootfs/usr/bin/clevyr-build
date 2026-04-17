@@ -1,34 +1,34 @@
 #!/bin/bash
 
-set -ef
+set -efuo pipefail
 
 log() {
     printf '%s: %s\n' "$(basename "$0")" "$@" >&2
 }
 
-if [ "$INSTALL_MYSQL" = "true" ]; then
+if [ "${INSTALL_MYSQL:-}" = "true" ]; then
     unset INSTALL_MYSQL
-    export INSTALL="$INSTALL mysqli pdo_mysql"
+    export INSTALL="${INSTALL:-} mysqli pdo_mysql"
 fi
 
-if [ "$INSTALL_SQLSRV" = "true" ]; then
+if [ "${INSTALL_SQLSRV:-}" = "true" ]; then
     unset INSTALL_SQLSRV
-    export INSTALL="$INSTALL sqlsrv pdo_sqlsrv"
+    export INSTALL="${INSTALL:-} sqlsrv pdo_sqlsrv"
 fi
 
 # Add workaround for xdebug alpha release
-if [ "$INSTALL_XDEBUG" == "true" ]; then
+if [ "${INSTALL_XDEBUG:-}" = "true" ]; then
     unset INSTALL_XDEBUG
-    export INSTALL="$INSTALL xdebug-stable"
+    export INSTALL="${INSTALL:-} xdebug-stable"
 fi
 
 # Add old dependency args to new variable
 
-INSTALL=( $INSTALL "$@" )
+INSTALL=( ${INSTALL:-} "$@" )
 INSTALL+=( $(env | grep '^INSTALL_.*=true$' | cut -d= -f1 | cut -d_ -f2- | tr '[:upper:]' '[:lower:]' | tr '_' '-') )
 
-DEPS=( $DEPS )
-UNTRUSTED_DEPS=( $UNTRUSTED_DEPS )
+DEPS=( ${DEPS:-} )
+UNTRUSTED_DEPS=( ${UNTRUSTED_DEPS:-} )
 
 # Check for dependencies
 export BUILD_TMP='/tmp/clevyr-build'
