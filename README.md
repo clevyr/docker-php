@@ -29,6 +29,16 @@ Some php.ini values can be configured as a build arg.
 | `PHP_UPLOAD_MAX_FILESIZE` | See [`upload_max_filesize`](https://www.php.net/manual/en/ini.core.php#ini.upload-max-filesize).         | `8M`    |
 | `PHP_MAX_FILE_UPLOADS`    | See [`max_file_uploads`](https://www.php.net/manual/en/ini.core.php#ini.max-file-uploads).               | `20`    |
 
+### PHP-FPM Configuration
+
+| Environment Variable           | Description                                                                                                     | Default |
+|--------------------------------|-----------------------------------------------------------------------------------------------------------------|---------|
+| `PHP_FPM_PM_MAX_CHILDREN`      | See [`pm.max_children`](https://www.php.net/manual/en/install.fpm.configuration.php#pm.max-children).           | `80`    |
+| `PHP_FPM_PM_START_SERVERS`     | See [`pm.start_servers`](https://www.php.net/manual/en/install.fpm.configuration.php#pm.start-servers).         | `2`     |
+| `PHP_FPM_PM_MIN_SPARE_SERVERS` | See [`pm.min_spare_servers`](https://www.php.net/manual/en/install.fpm.configuration.php#pm.min-spare-servers). | `1`     |
+| `PHP_FPM_PM_MAX_SPARE_SERVERS` | See [`pm.max_spare_servers`](https://www.php.net/manual/en/install.fpm.configuration.php#pm.max-spare-servers). | `3`     |
+| `PHP_FPM_PM_MAX_REQUESTS`      | See [`pm.max_requests`](https://www.php.net/manual/en/install.fpm.configuration.php#pm.max-requests).           | `0`     |
+
 ## Build Arguments
 
 The following variables can be only be configured at build.
@@ -37,6 +47,15 @@ The following variables can be only be configured at build.
 |--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
 | `INSTALL`          | PHP extensions to install. See [here](https://github.com/mlocati/docker-php-extension-installer#supported-php-extensions) for available extensions. |
 | `DEPS`             | `apk` dependencies to install during the build.                                                                                                     |
+
+### Nginx Configuration
+
+Some nginx values can be configured as a build arg.
+
+| Build Arg       | Nginx Directive                                                               | Default       |
+|-----------------|-------------------------------------------------------------------------------|---------------|
+| `NGINX_ROOT`    | [root](http://nginx.org/en/docs/http/ngx_http_core_module.html#root)          | `/app/public` |
+| `NGINX_EXPIRES` | [expires](http://nginx.org/en/docs/http/ngx_http_headers_module.html#expires) | `7d`          |
 
 ### Legacy Build Arguments
 
