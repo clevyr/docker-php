@@ -1,0 +1,5 @@
+#!/bin/bash
+
+while [[ "$(php-fpm-status active_processes)" -gt 1 ]]; do
+    sleep 3;
+done
