@@ -40,6 +40,12 @@ jobs:
             type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},suffix=-${{ matrix.server }}-base,value=${{ matrix.php_version }}.0
             # {{major}}-{{server}}-base
             type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-${{ matrix.server }}-base,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-composer{{major}}-base (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' }},pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-base,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-base (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' }},pattern={{major}}.{{minor}},suffix=-base,value=${{ matrix.php_version }}.0
+            # {{major}}-base (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-base,value=${{ matrix.php_version }}.0
 
       - name: Docker meta (onbuild)
         id: meta-onbuild
@@ -50,8 +56,8 @@ jobs:
             ghcr.io/clevyr/php
           flavor: latest=false
           tags: |
-            # latest
-            type=raw,enable=${{ matrix.latest == 'true' }},value=latest
+            # latest (FPM only)
+            type=raw,enable=${{ matrix.latest == 'true' && matrix.server == 'fpm' }},value=latest
             # {{major}}.{{minor}}-composer{{major}}-{{server}}-onbuild
             type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-${{ matrix.server }}-onbuild,value=${{ matrix.php_version }}.0
             # {{major}}.{{minor}}-composer{{major}}-{{server}}
@@ -66,6 +72,18 @@ jobs:
             type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-${{ matrix.server }}-onbuild,value=${{ matrix.php_version }}.0
             # {{major}}
             type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-composer{{major}}-onbuild (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' }},pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-onbuild,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-composer{{major}} (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' }},pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }},value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-onbuild (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' }},pattern={{major}}.{{minor}},suffix=-onbuild,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}} (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' }},pattern={{major}}.{{minor}},value=${{ matrix.php_version }}.0
+            # {{major}}-composer{{major}} (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-composer${{ matrix.composer_version }},value=${{ matrix.php_version }}.0
+            # {{major}} (FPM only)
+            type=semver,enable=${{ matrix.composer_version == '2' && matrix.server == 'fpm' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},value=${{ matrix.php_version }}.0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
