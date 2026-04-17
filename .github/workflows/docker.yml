@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        server: ["fpm", "rr"]
         php_version: ["8.1", "8.2", "8.3", "8.4", "8.5"]
         composer_version: ["2"]
         platforms: ["linux/amd64,linux/arm64/v8"]
@@ -33,12 +34,12 @@ jobs:
             ghcr.io/clevyr/php
           flavor: latest=false
           tags: |
-            # {{major}}.{{minor}}-composer{{major}}-base
-            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-base,value=${{ matrix.php_version }}.0
-            # {{major}}.{{minor}}-base
-            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},suffix=-base,value=${{ matrix.php_version }}.0
-            # {{major}}-base
-            type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-base,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-composer{{major}}-{{server}}-base
+            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-${{ matrix.server }}-base,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-{{server}}-base
+            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},suffix=-${{ matrix.server }}-base,value=${{ matrix.php_version }}.0
+            # {{major}}-{{server}}-base
+            type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-${{ matrix.server }}-base,value=${{ matrix.php_version }}.0
 
       - name: Docker meta (onbuild)
         id: meta-onbuild
@@ -51,18 +52,18 @@ jobs:
           tags: |
             # latest
             type=raw,enable=${{ matrix.latest == 'true' }},value=latest
-            # {{major}}.{{minor}}-composer{{major}}-onbuild
-            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-onbuild,value=${{ matrix.php_version }}.0
-            # {{major}}.{{minor}}-composer{{major}}
-            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }},value=${{ matrix.php_version }}.0
-            # {{major}}.{{minor}}-onbuild
-            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},suffix=-onbuild,value=${{ matrix.php_version }}.0
-            # {{major}}.{{minor}}
-            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},value=${{ matrix.php_version }}.0
-            # {{major}}-composer{{major}}
-            type=semver,enable=${{ (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-composer${{ matrix.composer_version }},value=${{ matrix.php_version }}.0
-            # {{major}}-onbuild
-            type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-onbuild,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-composer{{major}}-{{server}}-onbuild
+            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-${{ matrix.server }}-onbuild,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-composer{{major}}-{{server}}
+            type=semver,pattern={{major}}.{{minor}},suffix=-composer${{ matrix.composer_version }}-${{ matrix.server }},value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-{{server}}-onbuild
+            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},suffix=-${{ matrix.server }}-onbuild,value=${{ matrix.php_version }}.0
+            # {{major}}.{{minor}}-{{server}}
+            type=semver,enable=${{ matrix.composer_version == '2' }},pattern={{major}}.{{minor}},suffix=-${{ matrix.server }},value=${{ matrix.php_version }}.0
+            # {{major}}-composer{{major}}-{{server}}
+            type=semver,enable=${{ (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-composer${{ matrix.composer_version }}-${{ matrix.server }},value=${{ matrix.php_version }}.0
+            # {{major}}-{{server}}-onbuild
+            type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},suffix=-${{ matrix.server }}-onbuild,value=${{ matrix.php_version }}.0
             # {{major}}
             type=semver,enable=${{ matrix.composer_version == '2' && (matrix.latest_major == 'true' || matrix.latest == 'true') }},pattern={{major}},value=${{ matrix.php_version }}.0
 
@@ -91,6 +92,7 @@ jobs:
           context: .
           pull: true
           load: true
+          file: Dockerfile.${{ matrix.server }}
           tags: ${{ env.TEST_TAG }}
           build-args: |
             COMPOSER_VERSION=${{ matrix.composer_version }}
@@ -98,10 +100,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Test nginx config
+        if: matrix.server == 'fpm'
+        run: docker run --rm -i "$TEST_TAG" nginx -t
+      - name: Test php-fpm config
+        if: matrix.server == 'fpm'
+        run: docker run --rm -i "$TEST_TAG" php-fpm -tt
       - name: Test RoadRunner
+        if: matrix.server == 'rr'
         run: docker run --rm -i "$TEST_TAG" rr --version
       - name: Test commands exist
-        run: docker run --rm -i "$TEST_TAG" which composer install-php-extensions clevyr-build rr
+        run: docker run --rm -i "$TEST_TAG" which composer install-php-extensions clevyr-build
 
       - name: Build and Push (base)
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
@@ -109,6 +118,7 @@ jobs:
           context: .
           pull: true
           push: ${{ github.ref_name == 'main' }}
+          file: Dockerfile.${{ matrix.server }}
           platforms: ${{ matrix.platforms }}
           tags: ${{ steps.meta-base.outputs.tags }}
           labels: ${{ steps.meta-base.outputs.labels }}
@@ -124,6 +134,7 @@ jobs:
         with:
           context: .
           push: ${{ github.ref_name == 'main' }}
+          file: Dockerfile.${{ matrix.server }}
           platforms: ${{ matrix.platforms }}
           tags: ${{ steps.meta-onbuild.outputs.tags }}
           labels: ${{ steps.meta-onbuild.outputs.labels }}
