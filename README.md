@@ -4,12 +4,27 @@
 
 An enhanced version of the default [PHP Docker image](https://hub.docker.com/_/php) which can install PHP extensions without requiring manual dependency installation using [mlocati/docker-php-extension-installer](https://github.com/mlocati/docker-php-extension-installer).
 
+## Image Variants
+
+Two image variants are available, distinguished by tag suffix:
+
+| Tag Suffix | Description                                                  | Example   |
+|------------|--------------------------------------------------------------|-----------|
+| `-fpm`     | PHP-FPM with Nginx, managed by s6                            | `8.5-fpm` |
+| `-rr`      | PHP CLI with [RoadRunner](https://roadrunner.dev) (rootless) | `8.5-rr`  |
+
+Tags without a suffix (e.g. `8.5`) default to the `-fpm` variant for backward compatibility.
+
 ## Pull Command
 
 The following command will retrieve an image with PHP 8.5 and Composer v2:
 
 ```sh
-docker pull ghcr.io/clevyr/php:8.5
+# PHP-FPM + Nginx
+docker pull ghcr.io/clevyr/php:8.5-fpm
+
+# RoadRunner
+docker pull ghcr.io/clevyr/php:8.5-rr
 ```
 
 ## Runtime Configuration
@@ -29,7 +44,7 @@ Some php.ini values can be configured as a build arg.
 | `PHP_UPLOAD_MAX_FILESIZE` | See [`upload_max_filesize`](https://www.php.net/manual/en/ini.core.php#ini.upload-max-filesize).         | `8M`    |
 | `PHP_MAX_FILE_UPLOADS`    | See [`max_file_uploads`](https://www.php.net/manual/en/ini.core.php#ini.max-file-uploads).               | `20`    |
 
-### PHP-FPM Configuration
+### PHP-FPM Configuration (`-fpm` only)
 
 | Environment Variable           | Description                                                                                                     | Default |
 |--------------------------------|-----------------------------------------------------------------------------------------------------------------|---------|
@@ -48,7 +63,7 @@ The following variables can be only be configured at build.
 | `INSTALL`          | PHP extensions to install. See [here](https://github.com/mlocati/docker-php-extension-installer#supported-php-extensions) for available extensions. |
 | `DEPS`             | `apk` dependencies to install during the build.                                                                                                     |
 
-### Nginx Configuration
+### Nginx Configuration (`-fpm` only)
 
 Some nginx values can be configured as a build arg.
 
