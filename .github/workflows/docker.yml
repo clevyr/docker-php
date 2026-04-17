@@ -8,7 +8,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build ${{ matrix.php_version }}-composer${{ matrix.composer_version }}
+    name: Build ${{ matrix.php_version }}-composer${{ matrix.composer_version }}-${{ matrix.server }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
