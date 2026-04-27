@@ -55,7 +55,7 @@ RUN <<EOT
   fi
 EOT
 
-COPY --from=ghcr.io/roadrunner-server/roadrunner:2025.1.11 /usr/bin/rr /usr/local/bin/rr
+COPY --from=ghcr.io/roadrunner-server/roadrunner:2025.1.13 /usr/bin/rr /usr/local/bin/rr
 COPY rootfs.common/ /
 COPY rootfs.rr/ /
 
