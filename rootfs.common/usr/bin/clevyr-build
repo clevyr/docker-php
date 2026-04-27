@@ -25,7 +25,7 @@ fi
 # Add old dependency args to new variable
 
 INSTALL=( ${INSTALL:-} "$@" )
-INSTALL+=( $(env | grep '^INSTALL_.*=true$' | cut -d= -f1 | cut -d_ -f2- | tr '[:upper:]' '[:lower:]' | tr '_' '-') )
+INSTALL+=( $(env | grep '^INSTALL_.*=true$' | cut -d= -f1 | cut -d_ -f2- | tr '[:upper:]' '[:lower:]' | tr '_' '-' || true) )
 
 DEPS=( ${DEPS:-} )
 UNTRUSTED_DEPS=( ${UNTRUSTED_DEPS:-} )
