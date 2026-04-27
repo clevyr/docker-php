@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -efu
+
+HEALTH_CHECK_HOST="${1:-127.0.0.1}"
+HEALTH_CHECK_PORT="${2:-2114}"
+
+wget -qO /dev/null "http://${HEALTH_CHECK_HOST}:${HEALTH_CHECK_PORT}/health?plugin=http"
